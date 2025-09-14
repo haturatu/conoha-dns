@@ -93,7 +93,8 @@ conoha-dns -h
 ```
 
 **認証**
-認証情報を使って新しいAPIトークンを取得し、`~/.conoha-env`ファイルに保存します。
+認証情報を使って新しいAPIトークンを取得し、`~/.conoha-env`ファイルに保存します。  
+なお、ConoHa APIトークンの有効期限は24時間です。  
 ```bash
 conoha-dns --auth
 ```
