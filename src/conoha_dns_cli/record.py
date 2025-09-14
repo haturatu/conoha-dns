@@ -41,7 +41,6 @@ class RecordManager:
 
                 header = f"  {'ID':<10} {'Name':<{max_name}}   {'Type':<{max_type}}   {'TTL':<6}   {'Data'}"
                 print(header)
-                print(f"  {'-'*10} {'-'*max_name}   {'-'*max_type}   {'-'*6}   {'-'*max_data}")
 
                 for record in records:
                     short_id = get_short_id(record['uuid'])

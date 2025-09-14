@@ -73,7 +73,6 @@ class DomainManager:
 
                 header = f"  {'ID':<10} {'Name':<30}"
                 print(header)
-                print(f"  {'-'*10} {'-'*30}")
                 for domain in domains:
                     short_id = get_short_id(domain['uuid'])
                     print(f"  {short_id:<10} {domain['name']:<30}")
