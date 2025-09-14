@@ -16,7 +16,7 @@ def main():
   conoha-dns -l
 
   # レコード一覧表示
-  conoha-dns -lr example.com
+  conoha-dns -l example.com
 
   # Aレコード追加 (サブドメインtestを補完してtest.example.comを追加)
   conoha-dns -ar example.com @ A 192.0.2.1
@@ -25,7 +25,7 @@ def main():
   # レコード更新 (レコードIDを指定し、新しいIPアドレスを設定)
   conoha-dns -ur example.com <record_id> --new-data 192.0.2.2
 
-  # レコード削除 (レコードIDは -lr で確認)
+  # レコード削除 (レコードIDは -l example.com で確認)
   conoha-dns -dr example.com <record_id>
 """
     parser = argparse.ArgumentParser(
@@ -37,10 +37,9 @@ def main():
 
     # Actions
     group.add_argument("--auth", action="store_true", help="APIトークンを認証・取得する")
-    group.add_argument("-l", "--list", action="store_true", help="ドメイン一覧表示")
+    group.add_argument("-l", "--list", nargs='?', const=True, default=None, metavar="DOMAIN_NAME", help="ドメイン一覧または指定ドメインのレコード一覧表示")
     group.add_argument("-ad", "--add-domain", nargs=2, metavar=("NAME", "EMAIL"), help="ドメイン追加")
     group.add_argument("-dd", "--delete-domain", metavar="DOMAIN_NAME", help="ドメインを名前で削除")
-    group.add_argument("-lr", "--list-records", metavar="DOMAIN_NAME", help="レコード一覧表示")
     group.add_argument("-ar", "--add-record", nargs=4, metavar=("DOMAIN_NAME", "NAME", "TYPE", "DATA"), help="レコード追加")
     group.add_argument("-ur", "--update-record", nargs=2, metavar=("DOMAIN_NAME", "RECORD_ID"), help="レコード更新")
     group.add_argument("-dr", "--delete-record", nargs=2, metavar=("DOMAIN_NAME", "RECORD_ID"), help="レコード削除")
@@ -64,14 +63,15 @@ def main():
         if args.auth:
             if client.token:
                 print("認証に成功し、APIトークンが利用可能です。")
-        elif args.list:
-            domain_manager.list_domains()
+        elif args.list is not None:
+            if args.list is True:
+                domain_manager.list_domains()
+            else:
+                record_manager.list_records(args.list)
         elif args.add_domain:
             domain_manager.add_domain(args.add_domain[0], args.add_domain[1])
         elif args.delete_domain:
             domain_manager.delete_domain(args.delete_domain)
-        elif args.list_records:
-            record_manager.list_records(args.list_records)
         elif args.add_record:
             record_manager.add_record(args.add_record[0], args.add_record[1], args.add_record[2], args.add_record[3], args.ttl)
         elif args.update_record:

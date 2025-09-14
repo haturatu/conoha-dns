@@ -5,7 +5,7 @@ ConoHa DNSをコマンドラインから操作するためのツールです。
 ```bash
 $ conoha-dns -h
 usage: conoha-dns [-h]
-                  (--auth | -l | -ad NAME EMAIL | -dd DOMAIN_NAME | -lr DOMAIN_NAME | -ar DOMAIN_NAME NAME TYPE DATA | -ur DOMAIN_NAME RECORD_ID | -dr DOMAIN_NAME RECORD_ID)
+                  (--auth | -l [DOMAIN_NAME] | -ad NAME EMAIL | -dd DOMAIN_NAME | -ar DOMAIN_NAME NAME TYPE DATA | -ur DOMAIN_NAME RECORD_ID | -dr DOMAIN_NAME RECORD_ID)
                   [-t TTL] [--new-name NEW_NAME] [--new-type NEW_TYPE] [--new-data NEW_DATA]
                   [--new-ttl NEW_TTL]
 
@@ -14,13 +14,13 @@ ConoHa DNS API (v1) を操作するCLIツール
 options:
   -h, --help            show this help message and exit
   --auth                APIトークンを認証・取得する
-  -l, --list            ドメイン一覧表示
+  -l [DOMAIN_NAME], --list [DOMAIN_NAME]
+                        ドメイン一覧または指定ドメインのレコード一覧表示
   -ad NAME EMAIL, --add-domain NAME EMAIL
                         ドメイン追加
   -dd DOMAIN_NAME, --delete-domain DOMAIN_NAME
                         ドメインを名前で削除
-  -lr DOMAIN_NAME, --list-records DOMAIN_NAME
-                        レコード一覧表示
+  
   -ar DOMAIN_NAME NAME TYPE DATA, --add-record DOMAIN_NAME NAME TYPE DATA
                         レコード追加
   -ur DOMAIN_NAME RECORD_ID, --update-record DOMAIN_NAME RECORD_ID
@@ -41,7 +41,7 @@ options:
   conoha-dns -l
 
   # レコード一覧表示
-  conoha-dns -lr example.com
+  conoha-dns -l example.com
 
   # Aレコード追加 (サブドメインtestを補完してtest.example.comを追加)
   conoha-dns -ar example.com @ A 192.0.2.1
@@ -50,7 +50,7 @@ options:
   # レコード更新 (レコードIDを指定し、新しいIPアドレスを設定)
   conoha-dns -ur example.com <record_id> --new-data 192.0.2.2
 
-  # レコード削除 (レコードIDは -lr で確認)
+  # レコード削除 (レコードIDは -l example.com で確認)
   conoha-dns -dr example.com <record_id>
 ```
 
@@ -94,11 +94,19 @@ conoha-dns -h
 conoha-dns --auth
 ```
 
-### ドメイン管理
+### ドメイン・レコード管理
 
-**ドメイン一覧**
+**ドメイン一覧・レコード一覧**
 ```bash
+# ドメイン一覧
 conoha-dns -l
+
+# レコード一覧
+conoha-dns -l <ドメイン名>
+```
+*実行例:*
+```bash
+conoha-dns -l example.com
 ```
 
 **ドメイン追加**
@@ -123,15 +131,6 @@ conoha-dns -dd example.com
 
 内部的に、ConoHa APIから取得したレコードIDは長いため、xxhashを用いて短いハッシュ値に変換して表示・利用しています。
 
-**レコード一覧**
-```bash
-conoha-dns -lr <ドメイン名>
-```
-*実行例:*
-```bash
-conoha-dns -lr example.com
-```
-
 **レコード追加**
 ```bash
 conoha-dns -ar <ドメイン名> <レコード名> <種別> <値> [--ttl <秒数>]
@@ -149,7 +148,7 @@ conoha-dns -ar example.com @ A 192.0.2.2 --ttl 600
 ```
 
 **レコード更新**
-`record_id`（`conoha-dns -lr <ドメイン名>`で確認可能）と、少なくとも1つの`--new-*`オプションを指定する必要があります。
+`record_id`（`conoha-dns -l <ドメイン名>`で確認可能）と、少なくとも1つの`--new-*`オプションを指定する必要があります。
 ```bash
 conoha-dns -ur <ドメイン名> <record_id> [--new-name <名前>] [--new-type <種別>] [--new-data <値>] [--new-ttl <TTL>]
 ```
