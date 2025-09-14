@@ -1,0 +1,10 @@
+ID,Name,Type,Data,TTL
+be299ed5,eyes4you.org.,SOA,a.conoha-dns.com. postmaster.example.org. 1757835783 3600 600 86400 3600,3600
+4ed005b9,eyes4you.org.,NS,a.conoha-dns.com.,3600
+b58689d3,eyes4you.org.,NS,b.conoha-dns.org.,3600
+f8a602ae,eyes4you.org.,TXT,v=spf1 ip4:206.83.109.232 ip6:2400:8500:2002:3317:163:44:113:145 -all,300
+73f4f149,eyes4you.org.,A,163.44.113.145,300
+4041862f,mail.eyes4you.org.,A,163.44.113.145,300
+27c481df,eyes4you.org.,MX,mail.eyes4you.org.,300
+45590882,_dmarc.eyes4you.org.,TXT,v=DMARC1; p=none; pct=100; adkim=r; aspf=r,300
+74be6807,mail._domainkey.eyes4you.org.,TXT,"""v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDFdu/VfVVHqUN84IZh739JVf8NW6HAmMBT3+NBcTmkwOGLQ4ye59wvN83CudtnHPKR9vdtL9kJusaWk6wm0HXtZ64dVkjZxg61vrwPWw25Pe1eAkrs8EkdqnCLfeHtsU2g7dBD+gjbJgOKdAhIocPQYQYio0kyMn8M/MlGP60eQQIDAQAB""",300

@@ -2,6 +2,8 @@ from functools import lru_cache
 from .client import ConohaDNSClient
 from .utils import normalize_domain, handle_api_error
 import requests
+import sys
+import csv
 
 from .id_converter import get_short_id
 
@@ -50,17 +52,36 @@ class DomainManager:
                 return domain['name']
         raise ValueError(f"ドメインID '{domain_id}' が見つかりませんでした。")
 
-    def list_domains(self):
+    def list_domains(self, output_format: str = None):
         try:
             domains = self._fetch_all_domains()
-            print("ドメイン一覧:")
-            if not domains:
-                print("  (ドメインはありません)")
-            for domain in domains:
-                short_id = get_short_id(domain['uuid'])
-                print(f"  ID: {short_id}, Name: {domain['name']}")
+
+            if output_format == 'csv':
+                print("ドメイン一覧をCSV形式で出力します...", file=sys.stderr)
+                if not domains:
+                    print("  (ドメインはありません)", file=sys.stderr)
+                    return
+                writer = csv.writer(sys.stdout)
+                writer.writerow(['ID', 'Name'])
+                for domain in domains:
+                    short_id = get_short_id(domain['uuid'])
+                    writer.writerow([short_id, domain['name']])
+            else:
+                if not domains:
+                    print("  (ドメインはありません)")
+                    return
+
+                header = f"  {'ID':<10} {'Name':<30}"
+                print(header)
+                print(f"  {'-'*10} {'-'*30}")
+                for domain in domains:
+                    short_id = get_short_id(domain['uuid'])
+                    print(f"  {short_id:<10} {domain['name']:<30}")
+
         except requests.exceptions.RequestException as e:
             handle_api_error(e)
+        except IOError as e:
+            print(f"ファイル書き込みエラー: {e}", file=sys.stderr)
 
     def add_domain(self, name: str, email: str):
         normalized_name = normalize_domain(name)

@@ -15,8 +15,8 @@ def main():
   # ドメイン一覧表示
   conoha-dns -l
 
-  # レコード一覧表示
-  conoha-dns -l example.com
+  # レコード一覧をCSV形式で標準出力
+  conoha-dns -l example.com --output csv > records.csv
 
   # Aレコード追加 (サブドメインtestを補完してtest.example.comを追加)
   conoha-dns -ar example.com @ A 192.0.2.1
@@ -46,6 +46,7 @@ def main():
     
     # General options
     parser.add_argument("-t", "--ttl", type=int, default=300, help="レコード追加時のTTL(秒)。デフォルト: 300")
+    parser.add_argument("-o", "--output", choices=['csv'], help="出力形式をCSVにします。'-l'での一覧表示時のみ有効です。")
 
     # Options for --update-record
     parser.add_argument("--new-name", help="更新後のレコード名")
@@ -64,10 +65,14 @@ def main():
             if client.token:
                 print("認証に成功し、APIトークンが利用可能です。")
         elif args.list is not None:
+            output_format = args.output
+            if output_format and output_format != 'csv':
+                 parser.error("現在サポートしている出力形式は'csv'のみです。")
+
             if args.list is True:
-                domain_manager.list_domains()
+                domain_manager.list_domains(output_format=output_format)
             else:
-                record_manager.list_records(args.list)
+                record_manager.list_records(args.list, output_format=output_format)
         elif args.add_domain:
             domain_manager.add_domain(args.add_domain[0], args.add_domain[1])
         elif args.delete_domain:
