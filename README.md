@@ -64,6 +64,8 @@ conoha-dns -dd example.com
 
 ### レコード管理
 
+内部的に、ConoHa APIから取得したレコードIDは長いため、xxhashを用いて短いハッシュ値に変換して表示・利用しています。
+
 **レコード一覧**
 ```bash
 conoha-dns -lr <ドメイン名>

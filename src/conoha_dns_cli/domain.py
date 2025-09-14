@@ -3,6 +3,8 @@ from .client import ConohaDNSClient
 from .utils import normalize_domain, handle_api_error
 import requests
 
+from .id_converter import get_short_id
+
 class DomainManager:
     def __init__(self, client: ConohaDNSClient):
         self.client = client
@@ -28,7 +30,8 @@ class DomainManager:
             if not domains:
                 print("  (ドメインはありません)")
             for domain in domains:
-                print(f"  ID: {domain['uuid']}, Name: {domain['name']}")
+                short_id = get_short_id(domain['uuid'])
+                print(f"  ID: {short_id}, Name: {domain['name']}")
         except requests.exceptions.RequestException as e:
             handle_api_error(e)
 

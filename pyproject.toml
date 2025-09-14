@@ -16,6 +16,7 @@ license = {text = "BSD-3-Clause"}
 dependencies = [
   "python-dotenv",
   "requests",
+  "xxhash",
 ]
 
 [project.scripts]
