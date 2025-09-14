@@ -117,7 +117,6 @@ conoha-dns -l <ドメイン名/ID>
 ```bash
 $ conoha-dns -l
   ID         Name                          
-  ---------- ------------------------------
   0e6f0695   soulminingrig.com.            
   4fb208de   eyes4you.org.                 
   ...
@@ -253,7 +252,6 @@ conoha-dns -l <ドメイン名/ID>
 ```bash
 $ conoha-dns -l
   ID         Name                          
-  ---------- ------------------------------
   0e6f0695   soulminingrig.com.            
   4fb208de   eyes4you.org.                 
   ...
