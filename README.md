@@ -5,11 +5,14 @@ ConoHa DNSをコマンドラインから操作するためのツールです。
 ## インストール
 
 はじめに、ConoHaの認証情報を記述した`.env`ファイルをプロジェクトルートに作成します。
+`CONOHA_AUTH_URL`と`CONOHA_DNS_API_URL`は通常、以下の値で固定です。
 
 ```
 CONOHA_USER_ID="your_user_id"
 CONOHA_PASSWORD="your_password"
 TENANT_ID="your_tenant_id"
+CONOHA_AUTH_URL="https://identity.sample.conoha.io"
+CONOHA_DNS_API_URL="https://dns-service.sample.conoha.io"
 ```
 
 次に、Makefileを使ってビルドとインストールを実行します。
