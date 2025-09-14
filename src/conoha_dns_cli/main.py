@@ -37,12 +37,12 @@ def main():
 
     # Actions
     group.add_argument("--auth", action="store_true", help="APIトークンを認証・取得する")
-    group.add_argument("-l", "--list", nargs='?', const=True, default=None, metavar="DOMAIN_NAME", help="ドメイン一覧または指定ドメインのレコード一覧表示")
+    group.add_argument("-l", "--list", nargs='?', const=True, default=None, metavar="DOMAIN", help="ドメイン一覧または指定ドメインのレコード一覧表示")
     group.add_argument("-ad", "--add-domain", nargs=2, metavar=("NAME", "EMAIL"), help="ドメイン追加")
-    group.add_argument("-dd", "--delete-domain", metavar="DOMAIN_NAME", help="ドメインを名前で削除")
-    group.add_argument("-ar", "--add-record", nargs=4, metavar=("DOMAIN_NAME", "NAME", "TYPE", "DATA"), help="レコード追加")
-    group.add_argument("-ur", "--update-record", nargs=2, metavar=("DOMAIN_NAME", "RECORD_ID"), help="レコード更新")
-    group.add_argument("-dr", "--delete-record", nargs=2, metavar=("DOMAIN_NAME", "RECORD_ID"), help="レコード削除")
+    group.add_argument("-dd", "--delete-domain", metavar="DOMAIN", help="ドメインを名前またはIDで削除")
+    group.add_argument("-ar", "--add-record", nargs=4, metavar=("DOMAIN", "NAME", "TYPE", "DATA"), help="レコード追加")
+    group.add_argument("-ur", "--update-record", nargs=2, metavar=("DOMAIN", "RECORD_ID"), help="レコード更新")
+    group.add_argument("-dr", "--delete-record", nargs=2, metavar=("DOMAIN", "RECORD_ID"), help="レコード削除")
     
     # General options
     parser.add_argument("-t", "--ttl", type=int, default=300, help="レコード追加時のTTL(秒)。デフォルト: 300")

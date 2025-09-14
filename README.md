@@ -5,7 +5,7 @@ ConoHa DNSをコマンドラインから操作するためのツールです。
 ```bash
 $ conoha-dns -h
 usage: conoha-dns [-h]
-                  (--auth | -l [DOMAIN_NAME] | -ad NAME EMAIL | -dd DOMAIN_NAME | -ar DOMAIN_NAME NAME TYPE DATA | -ur DOMAIN_NAME RECORD_ID | -dr DOMAIN_NAME RECORD_ID)
+                  (--auth | -l [DOMAIN] | -ad NAME EMAIL | -dd DOMAIN | -ar DOMAIN NAME TYPE DATA | -ur DOMAIN RECORD_ID | -dr DOMAIN RECORD_ID)
                   [-t TTL] [--new-name NEW_NAME] [--new-type NEW_TYPE] [--new-data NEW_DATA]
                   [--new-ttl NEW_TTL]
 
@@ -14,18 +14,17 @@ ConoHa DNS API (v1) を操作するCLIツール
 options:
   -h, --help            show this help message and exit
   --auth                APIトークンを認証・取得する
-  -l [DOMAIN_NAME], --list [DOMAIN_NAME]
+  -l [DOMAIN], --list [DOMAIN]
                         ドメイン一覧または指定ドメインのレコード一覧表示
   -ad NAME EMAIL, --add-domain NAME EMAIL
                         ドメイン追加
-  -dd DOMAIN_NAME, --delete-domain DOMAIN_NAME
-                        ドメインを名前で削除
-  
-  -ar DOMAIN_NAME NAME TYPE DATA, --add-record DOMAIN_NAME NAME TYPE DATA
+  -dd DOMAIN, --delete-domain DOMAIN
+                        ドメインを名前またはIDで削除
+  -ar DOMAIN NAME TYPE DATA, --add-record DOMAIN NAME TYPE DATA
                         レコード追加
-  -ur DOMAIN_NAME RECORD_ID, --update-record DOMAIN_NAME RECORD_ID
+  -ur DOMAIN RECORD_ID, --update-record DOMAIN RECORD_ID
                         レコード更新
-  -dr DOMAIN_NAME RECORD_ID, --delete-record DOMAIN_NAME RECORD_ID
+  -dr DOMAIN RECORD_ID, --delete-record DOMAIN RECORD_ID
                         レコード削除
   -t TTL, --ttl TTL     レコード追加時のTTL(秒)。デフォルト: 300
   --new-name NEW_NAME   更新後のレコード名
@@ -40,12 +39,13 @@ options:
   # ドメイン一覧表示
   conoha-dns -l
 
-  # レコード一覧表示
+  # レコード一覧表示 (ドメイン名またはIDで指定)
   conoha-dns -l example.com
+  conoha-dns -l ba9b5b9d
 
   # Aレコード追加 (サブドメインtestを補完してtest.example.comを追加)
   conoha-dns -ar example.com @ A 192.0.2.1
-  conoha-dns -ar example.com test A 192.0.2.1
+  conoha-dns -ar ba9b5b9d test A 192.0.2.1
 
   # レコード更新 (レコードIDを指定し、新しいIPアドレスを設定)
   conoha-dns -ur example.com <record_id> --new-data 192.0.2.2
@@ -80,6 +80,7 @@ make install
 ## 使い方
 
 このコマンドは、実行したい操作をフラグで指定します。一度に指定できる操作は1つだけです。
+ドメインを指定する引数 (DOMAIN) には、ドメイン名 (`example.com`) またはドメインID (`ba9b5b9d`など) の両方を使用できます。
 
 ### 一般的なコマンド
 
@@ -101,12 +102,13 @@ conoha-dns --auth
 # ドメイン一覧
 conoha-dns -l
 
-# レコード一覧
-conoha-dns -l <ドメイン名>
+# レコード一覧 (ドメイン名またはIDで指定)
+conoha-dns -l <ドメイン名/ID>
 ```
 *実行例:*
 ```bash
 conoha-dns -l example.com
+conoha-dns -l ba9b5b9d
 ```
 
 **ドメイン追加**
@@ -120,11 +122,12 @@ conoha-dns -ad example.com admin@example.com
 
 **ドメイン削除**
 ```bash
-conoha-dns -dd <ドメイン名>
+conoha-dns -dd <ドメイン名/ID>
 ```
 *実行例:*
 ```bash
 conoha-dns -dd example.com
+conoha-dns -dd ba9b5b9d
 ```
 
 ### レコード管理
@@ -133,7 +136,7 @@ conoha-dns -dd example.com
 
 **レコード追加**
 ```bash
-conoha-dns -ar <ドメイン名> <レコード名> <種別> <値> [--ttl <秒数>]
+conoha-dns -ar <ドメイン名/ID> <レコード名> <種別> <値> [--ttl <秒数>]
 ```
 - `<レコード名>`: ルートドメインを指す場合は`@`を使用します。
 - `--ttl`: 省略可能です。デフォルトは300秒です。
@@ -143,28 +146,28 @@ conoha-dns -ar <ドメイン名> <レコード名> <種別> <値> [--ttl <秒数
 # www.example.com のAレコードを追加
 conoha-dns -ar example.com www A 192.0.2.1
 
-# example.com のルートAレコードをTTL 600秒で追加
-conoha-dns -ar example.com @ A 192.0.2.2 --ttl 600
+# example.com のルートAレコードをTTL 600秒で追加 (IDで指定)
+conoha-dns -ar ba9b5b9d @ A 192.0.2.2 --ttl 600
 ```
 
 **レコード更新**
-`record_id`（`conoha-dns -l <ドメイン名>`で確認可能）と、少なくとも1つの`--new-*`オプションを指定する必要があります。
+`record_id`（`conoha-dns -l <ドメイン名/ID>`で確認可能）と、少なくとも1つの`--new-*`オプションを指定する必要があります。
 ```bash
-conoha-dns -ur <ドメイン名> <record_id> [--new-name <名前>] [--new-type <種別>] [--new-data <値>] [--new-ttl <TTL>]
+conoha-dns -ur <ドメイン名/ID> <record_id> [--new-name <名前>] [--new-type <種別>] [--new-data <値>] [--new-ttl <TTL>]
 ```
 *実行例:*
 ```bash
 # レコードのIPアドレスを更新
-conoha-dns -ur example.com 0b8e19a2-a297-47f7-b3c8-a54d85382413 --new-data 198.51.100.5
+conoha-dns -ur example.com 0b8e19a2 --new-data 198.51.100.5
 ```
 
 **レコード削除**
 ```bash
-conoha-dns -dr <ドメイン名> <record_id>
+conoha-dns -dr <ドメイン名/ID> <record_id>
 ```
 *実行例:*
 ```bash
-conoha-dns -dr example.com 0b8e19a2-a297-47f7-b3c8-a54d85382413
+conoha-dns -dr ba9b5b9d 0b8e19a2
 ```
 
 ## 応用例：xargsを使った一括操作

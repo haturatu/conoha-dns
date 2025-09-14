@@ -12,9 +12,10 @@ class RecordManager:
     def _get_all_records(self, domain_id: str) -> list:
         return self.client.get(f"/v1/domains/{domain_id}/records").get("records", [])
 
-    def list_records(self, domain_name: str):
+    def list_records(self, identifier: str):
         try:
-            domain_id = self.domain_manager.get_domain_id_from_name(domain_name)
+            domain_id = self.domain_manager.get_domain_id(identifier)
+            domain_name = self.domain_manager.get_domain_name_from_id(domain_id)
             print(f"ドメイン '{domain_name}' のレコード一覧を取得しています...")
             records = self._get_all_records(domain_id)
             print("レコード一覧:")
@@ -26,9 +27,10 @@ class RecordManager:
         except (ValueError, requests.exceptions.RequestException) as e:
             handle_api_error(e) if isinstance(e, requests.exceptions.RequestException) else print(f"エラー: {e}")
 
-    def add_record(self, domain_name: str, name: str, type: str, data: str, ttl: int):
+    def add_record(self, identifier: str, name: str, type: str, data: str, ttl: int):
         try:
-            domain_id = self.domain_manager.get_domain_id_from_name(domain_name)
+            domain_id = self.domain_manager.get_domain_id(identifier)
+            domain_name = self.domain_manager.get_domain_name_from_id(domain_id)
             normalized_name = normalize_record_name(domain_name, name)
             
             print(f"ドメイン '{domain_name}' にレコード '{normalized_name}' を追加しています...")
@@ -40,9 +42,10 @@ class RecordManager:
         except (ValueError, requests.exceptions.RequestException) as e:
             handle_api_error(e) if isinstance(e, requests.exceptions.RequestException) else print(f"エラー: {e}")
 
-    def delete_record(self, domain_name: str, short_record_id: str):
+    def delete_record(self, identifier: str, short_record_id: str):
         try:
-            domain_id = self.domain_manager.get_domain_id_from_name(domain_name)
+            domain_id = self.domain_manager.get_domain_id(identifier)
+            domain_name = self.domain_manager.get_domain_name_from_id(domain_id)
             all_records = self._get_all_records(domain_id)
             full_record_id = find_full_uuid(all_records, short_record_id)
             
@@ -55,9 +58,10 @@ class RecordManager:
     def get_record(self, domain_id: str, record_id: str):
         return self.client.get(f"/v1/domains/{domain_id}/records/{record_id}")
 
-    def update_record(self, domain_name: str, short_record_id: str, new_name: str = None, new_type: str = None, new_data: str = None, new_ttl: int = None):
+    def update_record(self, identifier: str, short_record_id: str, new_name: str = None, new_type: str = None, new_data: str = None, new_ttl: int = None):
         try:
-            domain_id = self.domain_manager.get_domain_id_from_name(domain_name)
+            domain_id = self.domain_manager.get_domain_id(identifier)
+            domain_name = self.domain_manager.get_domain_name_from_id(domain_id)
             all_records = self._get_all_records(domain_id)
             full_record_id = find_full_uuid(all_records, short_record_id)
             
