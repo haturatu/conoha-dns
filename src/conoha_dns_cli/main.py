@@ -1,11 +1,12 @@
 import argparse
+import os
 from dotenv import load_dotenv
 from .client import ConohaDNSClient
 from .domain import DomainManager
 from .record import RecordManager
 
 def main():
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.expanduser("~/.conoha-env"))
     epilog_text = """
 使用例:
   # APIトークンを認証・取得

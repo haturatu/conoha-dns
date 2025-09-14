@@ -56,11 +56,11 @@ options:
 
 ## インストール
 
-はじめに、ConoHaの認証情報を記述した`.env`ファイルをプロジェクトルートに作成します。
+はじめに、ConoHaの認証情報を記述した`~/.conoha-env`ファイルをホームディレクトリに作成します。
 APIエンドポイントはConoHaのリージョンによって異なるため、適宜変更してください。  
 [ConoHaコントロールパネル](https://cp.conoha.jp/VPS/API/)  の「API情報」から確認できます。  
 
-**.env**:  
+**~/.conoha-env**:  
 ```
 CONOHA_USER_ID="your_user_id"                             # API ユーザー: ユーザID
 CONOHA_PASSWORD="your_password"                           # API ユーザー: パスワード
@@ -89,7 +89,7 @@ conoha-dns -h
 ```
 
 **認証**
-認証情報を使って新しいAPIトークンを取得し、`.env`ファイルに保存します。
+認証情報を使って新しいAPIトークンを取得し、`~/.conoha-env`ファイルに保存します。
 ```bash
 conoha-dns --auth
 ```

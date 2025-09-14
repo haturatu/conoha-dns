@@ -19,7 +19,7 @@ class ConohaDNSClient:
         project_id = os.getenv("TENANT_ID")
 
         if not all([user_id, password, project_id]):
-            raise ValueError("APIトークンが見つからず、認証情報 (.envの CONOHA_USER_ID, CONOHA_PASSWORD, TENANT_ID) も不完全です。")
+            raise ValueError("APIトークンが見つからず、認証情報 (~/.conoha-envの CONOHA_USER_ID, CONOHA_PASSWORD, TENANT_ID) も不完全です。")
 
         auth_base_url = os.getenv("CONOHA_AUTH_URL", "https://identity.c3j1.conoha.io")
         auth_url = f"{auth_base_url.rstrip('/')}/v3/auth/tokens"
@@ -45,11 +45,12 @@ class ConohaDNSClient:
             if response.status_code == 201 and new_token:
                 print("新しいAPIトークンを取得しました。")
                 try:
-                    with open(".env", "a") as f:
+                    env_path = os.path.expanduser("~/.conoha-env")
+                    with open(env_path, "a") as f:
                         f.write(f"\nCONOHA_TOKEN={new_token}\n")
-                    print(".envファイルにCONOHA_TOKENを追記しました。")
+                    print(f"{env_path}ファイルにCONOHA_TOKENを追記しました。")
                 except IOError as e:
-                    print(f"警告: .envファイルへの書き込みに失敗しました。手動でトークンを保存してください。エラー: {e}")
+                    print(f"警告: {env_path}ファイルへの書き込みに失敗しました。手動でトークンを保存してください。エラー: {e}")
                 os.environ['CONOHA_TOKEN'] = new_token
                 return new_token
             else:
