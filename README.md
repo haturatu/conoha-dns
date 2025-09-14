@@ -57,14 +57,16 @@ options:
 ## インストール
 
 はじめに、ConoHaの認証情報を記述した`.env`ファイルをプロジェクトルートに作成します。
-`CONOHA_AUTH_URL`と`CONOHA_DNS_API_URL`は通常、以下の値で固定です。
+APIエンドポイントはConoHaのリージョンによって異なるため、適宜変更してください。  
+[ConoHaコントロールパネル](https://cp.conoha.jp/VPS/API/)  の「API情報」から確認できます。  
 
+**.env**:  
 ```
-CONOHA_USER_ID="your_user_id"
-CONOHA_PASSWORD="your_password"
-TENANT_ID="your_tenant_id"
-CONOHA_AUTH_URL="https://identity.sample.conoha.io"
-CONOHA_DNS_API_URL="https://dns-service.sample.conoha.io"
+CONOHA_USER_ID="your_user_id"                             # API ユーザー: ユーザID
+CONOHA_PASSWORD="your_password"                           # API ユーザー: パスワード
+TENANT_ID="your_tenant_id"                                # テナント情報: テナントID	
+CONOHA_AUTH_URL="https://identity.sample.conoha.io"       # エンドポイント: Identity Service URL
+CONOHA_DNS_API_URL="https://dns-service.sample.conoha.io" # エンドポイント: DNS Service URL
 ```
 
 次に、Makefileを使ってビルドとインストールを実行します。
