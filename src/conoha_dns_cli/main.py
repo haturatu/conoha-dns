@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 from dotenv import load_dotenv
 from .client import ConohaDNSClient
 from .domain import DomainManager
@@ -11,6 +12,9 @@ def main():
 使用例:
   # APIトークンを認証・取得
   conoha-dns --auth
+
+  # APIトークンを強制的に再認証・更新
+  conoha-dns --renew
 
   # ドメイン一覧表示
   conoha-dns -l
@@ -37,6 +41,7 @@ def main():
 
     # Actions
     group.add_argument("--auth", action="store_true", help="APIトークンを認証・取得する")
+    group.add_argument("--renew", action="store_true", help="APIトークンを強制的に再認証・更新する")
     group.add_argument("-l", "--list", nargs='?', const=True, default=None, metavar="DOMAIN", help="ドメイン一覧または指定ドメインのレコード一覧表示")
     group.add_argument("-ad", "--add-domain", nargs=2, metavar=("NAME", "EMAIL"), help="ドメイン追加")
     group.add_argument("-dd", "--delete-domain", metavar="DOMAIN", help="ドメインを名前またはIDで削除")
@@ -57,14 +62,23 @@ def main():
     args = parser.parse_args()
 
     try:
+        if args.renew:
+            client = ConohaDNSClient(renew=True)
+            if client.token:
+                print("APIトークンが正常に更新されました。")
+            return
+
+        if args.auth:
+            client = ConohaDNSClient()
+            if client.token:
+                print("認証に成功し、APIトークンが利用可能です。")
+            return
+
         client = ConohaDNSClient()
         domain_manager = DomainManager(client)
         record_manager = RecordManager(client, domain_manager)
 
-        if args.auth:
-            if client.token:
-                print("認証に成功し、APIトークンが利用可能です。")
-        elif args.list is not None:
+        if args.list is not None:
             output_format = args.output
             if output_format and output_format != 'csv':
                  parser.error("現在サポートしている出力形式は'csv'のみです。")
@@ -94,9 +108,11 @@ def main():
             record_manager.delete_record(args.delete_record[0], args.delete_record[1])
             
     except ValueError as e:
-        print(f"エラー: {e}")
+        print(f"エラー: {e}", file=sys.stderr)
+        sys.exit(3)
     except Exception as e:
-        print(f"予期せぬエラーが発生しました: {e}")
+        print(f"予期せぬエラーが発生しました: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

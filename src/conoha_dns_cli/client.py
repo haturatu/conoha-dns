@@ -5,14 +5,15 @@ from functools import lru_cache
 from .utils import handle_api_error
 
 class ConohaDNSClient:
-    def __init__(self):
+    def __init__(self, renew=False):
         self.api_base_url = os.getenv("CONOHA_DNS_API_URL", "https://dns-service.c3j1.conoha.io")
-        self.token = self._get_api_token()
+        self.token = self._get_api_token(renew)
 
-    def _get_api_token(self):
-        token = os.getenv("CONOHA_TOKEN") or os.getenv("API_TOKEN")
-        if token:
-            return token
+    def _get_api_token(self, renew=False):
+        if not renew:
+            token = os.getenv("CONOHA_TOKEN") or os.getenv("API_TOKEN")
+            if token:
+                return token
 
         user_id = os.getenv("CONOHA_USER_ID")
         password = os.getenv("CONOHA_PASSWORD")
@@ -37,7 +38,7 @@ class ConohaDNSClient:
         }
         headers = {"Accept": "application/json", "Content-Type": "application/json"}
 
-        print("APIトークンが見つからないため、認証して新しいトークンを取得します...")
+        print("認証して新しいAPIトークンを取得します...")
         try:
             response = requests.post(auth_url, headers=headers, json=payload)
             new_token = response.headers.get("X-Subject-Token")
@@ -46,9 +47,18 @@ class ConohaDNSClient:
                 print("新しいAPIトークンを取得しました。")
                 try:
                     env_path = os.path.expanduser("~/.conoha-env")
-                    with open(env_path, "a") as f:
-                        f.write(f"\nCONOHA_TOKEN={new_token}\n")
-                    print(f"{env_path}ファイルにCONOHA_TOKENを追記しました。")
+                    lines = []
+                    if os.path.exists(env_path):
+                        with open(env_path, "r") as f:
+                            lines = f.readlines()
+                    
+                    with open(env_path, "w") as f:
+                        for line in lines:
+                            if not line.startswith("CONOHA_TOKEN="):
+                                f.write(line)
+                        f.write(f"CONOHA_TOKEN={new_token}\n")
+                    print(f"{env_path}ファイルにCONOHA_TOKENを更新しました。")
+
                 except IOError as e:
                     print(f"警告: {env_path}ファイルへの書き込みに失敗しました。手動でトークンを保存してください。エラー: {e}")
                 os.environ['CONOHA_TOKEN'] = new_token

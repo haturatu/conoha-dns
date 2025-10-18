@@ -1,4 +1,5 @@
 import json
+import sys
 import requests
 
 def normalize_domain(domain_name: str) -> str:
@@ -20,15 +21,16 @@ def normalize_record_name(domain_name: str, record_name: str) -> str:
 
 def handle_api_error(e):
     """APIエラーを処理し、情報を出力する"""
-    print(f"エラー: 要求に失敗しました。")
+    print(f"エラー: 要求に失敗しました。", file=sys.stderr)
     if isinstance(e, requests.exceptions.RequestException):
         if hasattr(e, 'response') and e.response is not None:
-            print(f"ステータスコード: {e.response.status_code}")
+            print(f"ステータスコード: {e.response.status_code}", file=sys.stderr)
             try:
-                print(f"レスポンス: {json.dumps(e.response.json(), indent=2, ensure_ascii=False)}")
+                print(f"レスポンス: {json.dumps(e.response.json(), indent=2, ensure_ascii=False)}", file=sys.stderr)
             except json.JSONDecodeError:
-                print(f"レスポンス: {e.response.text}")
+                print(f"レスポンス: {e.response.text}", file=sys.stderr)
         else:
-            print(e)
+            print(e, file=sys.stderr)
     else:
-        print(e)
+        print(e, file=sys.stderr)
+    sys.exit(4)
