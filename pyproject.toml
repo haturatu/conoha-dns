@@ -4,20 +4,24 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "conoha-dns-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = "A CLI tool to manage ConoHa DNS."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
   {name = "haturatu", email = "taro@eyes4you.org"},
 ]
-license = {text = "BSD-3-Clause"}
+license = "BSD-3-Clause"
 
 dependencies = [
   "python-dotenv",
   "requests",
   "xxhash",
 ]
+
+
+[project.urls]
+Source = "https://github.com/haturatu/conoha-dns"
 
 [project.scripts]
 conoha-dns = "conoha_dns_cli.main:main"

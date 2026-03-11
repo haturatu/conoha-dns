@@ -1,9 +1,12 @@
-.PHONY: all build install uninstall clean
+.PHONY: all build test install uninstall clean
 
 all: build
 
 build:
 	python3 -m build
+
+test:
+	PYTHONPATH=src python3 -m conoha_dns_cli.main --help > /dev/null
 
 install:
 	pip install . --force-reinstall
