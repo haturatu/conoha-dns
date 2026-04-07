@@ -9,7 +9,9 @@ $ conoha-dns -h
 usage: main.py [-h]
                (--auth | -l [DOMAIN] | -ad NAME EMAIL | -dd DOMAIN | -ar DOMAIN NAME TYPE DATA | -ur DOMAIN RECORD_ID | -dr DOMAIN RECORD_ID)
                [-t TTL] [-o {csv}] [--new-name NEW_NAME] [--new-type NEW_TYPE]
-               [--new-data NEW_DATA] [--new-ttl NEW_TTL]
+               [--priority PRIORITY] [--weight WEIGHT] [--port PORT]
+               [--new-data NEW_DATA] [--new-ttl NEW_TTL] [--new-priority NEW_PRIORITY]
+               [--new-weight NEW_WEIGHT] [--new-port NEW_PORT]
 
 ConoHa DNS API (v1) を操作するCLIツール
 
@@ -31,10 +33,18 @@ options:
   -t TTL, --ttl TTL     レコード追加時のTTL(秒)。デフォルト: 300
   -o {csv}, --output {csv}
                         出力形式をCSVにします。'-l'での一覧表示時のみ有効です。
+  --priority PRIORITY   MX/SRVレコード追加時の優先度
+  --weight WEIGHT       SRVレコード追加時の重み
+  --port PORT           SRVレコード追加時のポート番号
   --new-name NEW_NAME   更新後のレコード名
   --new-type NEW_TYPE   更新後のレコードタイプ
   --new-data NEW_DATA   更新後のレコードデータ
   --new-ttl NEW_TTL     更新後のTTL
+  --new-priority NEW_PRIORITY
+                        更新後の優先度
+  --new-weight NEW_WEIGHT
+                        更新後の重み
+  --new-port NEW_PORT   更新後のポート番号
 
 使用例:
   # APIトークンを認証・取得
@@ -49,6 +59,8 @@ options:
   # Aレコード追加 (サブドメインtestを補完してtest.example.comを追加)
   conoha-dns -ar example.com @ A 192.0.2.1
   conoha-dns -ar example.com test A 192.0.2.1
+  conoha-dns -ar example.com mail MX mail.example.net. --priority 10
+  conoha-dns -ar example.com _sip._tcp SRV sip.example.net. --priority 10 --weight 20 --port 5060
 
   # レコード更新 (レコードIDを指定し、新しいIPアドレスを設定)
   conoha-dns -ur example.com <record_id> --new-data 192.0.2.2
@@ -157,13 +169,14 @@ conoha-dns -dd <ドメイン名/ID>
 
 **レコード追加**
 ```bash
-conoha-dns -ar <ドメイン名/ID> <レコード名> <種別> <値> [--ttl <秒数>]
+conoha-dns -ar <ドメイン名/ID> <レコード名> <種別> <値> [--ttl <秒数>] [--priority <数値>] [--weight <数値>] [--port <数値>]
 ```
+`MX` では `--priority` が必須です。`SRV` では `--priority`, `--weight`, `--port` が必須です。
 
 **レコード更新**
 `record_id`（`conoha-dns -l <ドメイン名/ID>`で確認可能）と、少なくとも1つの`--new-*`オプションを指定する必要があります。
 ```bash
-conoha-dns -ur <ドメイン名/ID> <record_id> [--new-name <名前>] [--new-type <種別>] [--new-data <値>] [--new-ttl <TTL>]
+conoha-dns -ur <ドメイン名/ID> <record_id> [--new-name <名前>] [--new-type <種別>] [--new-data <値>] [--new-ttl <TTL>] [--new-priority <数値>] [--new-weight <数値>] [--new-port <数値>]
 ```
 
 **レコード削除**

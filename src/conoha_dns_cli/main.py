@@ -6,6 +6,23 @@ from .client import ConohaDNSClient
 from .domain import DomainManager
 from .record import RecordManager
 
+
+def validate_record_options(parser, record_type, priority=None, weight=None, port=None):
+    normalized_type = record_type.upper()
+    if normalized_type == "MX" and priority is None:
+        parser.error("MXレコードには --priority の指定が必要です。")
+    if normalized_type == "SRV":
+        missing = []
+        if priority is None:
+            missing.append("--priority")
+        if weight is None:
+            missing.append("--weight")
+        if port is None:
+            missing.append("--port")
+        if missing:
+            parser.error(f"SRVレコードには {', '.join(missing)} の指定が必要です。")
+
+
 def main():
     load_dotenv(dotenv_path=os.path.expanduser("~/.conoha-env"))
     epilog_text = """
@@ -25,6 +42,8 @@ def main():
   # Aレコード追加 (サブドメインtestを補完してtest.example.comを追加)
   conoha-dns -ar example.com @ A 192.0.2.1
   conoha-dns -ar example.com test A 192.0.2.1
+  conoha-dns -ar example.com mail MX mail.example.net. --priority 10
+  conoha-dns -ar example.com _sip._tcp SRV sip.example.net. --priority 10 --weight 20 --port 5060
 
   # レコード更新 (レコードIDを指定し、新しいIPアドレスを設定)
   conoha-dns -ur example.com <record_id> --new-data 192.0.2.2
@@ -52,12 +71,18 @@ def main():
     # General options
     parser.add_argument("-t", "--ttl", type=int, default=300, help="レコード追加時のTTL(秒)。デフォルト: 300")
     parser.add_argument("-o", "--output", choices=['csv'], help="出力形式をCSVにします。'-l'での一覧表示時のみ有効です。")
+    parser.add_argument("--priority", type=int, help="MX/SRVレコード追加時の優先度")
+    parser.add_argument("--weight", type=int, help="SRVレコード追加時の重み")
+    parser.add_argument("--port", type=int, help="SRVレコード追加時のポート番号")
 
     # Options for --update-record
     parser.add_argument("--new-name", help="更新後のレコード名")
     parser.add_argument("--new-type", help="更新後のレコードタイプ")
     parser.add_argument("--new-data", help="更新後のレコードデータ")
     parser.add_argument("--new-ttl", type=int, help="更新後のTTL")
+    parser.add_argument("--new-priority", type=int, help="更新後の優先度")
+    parser.add_argument("--new-weight", type=int, help="更新後の重み")
+    parser.add_argument("--new-port", type=int, help="更新後のポート番号")
 
     args = parser.parse_args()
 
@@ -92,17 +117,52 @@ def main():
         elif args.delete_domain:
             domain_manager.delete_domain(args.delete_domain)
         elif args.add_record:
-            record_manager.add_record(args.add_record[0], args.add_record[1], args.add_record[2], args.add_record[3], args.ttl)
+            validate_record_options(
+                parser,
+                args.add_record[2],
+                priority=args.priority,
+                weight=args.weight,
+                port=args.port,
+            )
+            record_manager.add_record(
+                args.add_record[0],
+                args.add_record[1],
+                args.add_record[2],
+                args.add_record[3],
+                args.ttl,
+                priority=args.priority,
+                weight=args.weight,
+                port=args.port,
+            )
         elif args.update_record:
-            if not any([args.new_name, args.new_type, args.new_data, args.new_ttl is not None]):
-                parser.error("--update-recordには、--new-name, --new-type, --new-data, --new-ttl のいずれか1つ以上の指定が必要です。")
+            if not any([
+                args.new_name,
+                args.new_type,
+                args.new_data,
+                args.new_ttl is not None,
+                args.new_priority is not None,
+                args.new_weight is not None,
+                args.new_port is not None,
+            ]):
+                parser.error("--update-recordには、--new-name, --new-type, --new-data, --new-ttl, --new-priority, --new-weight, --new-port のいずれか1つ以上の指定が必要です。")
+            if args.new_type is not None:
+                validate_record_options(
+                    parser,
+                    args.new_type,
+                    priority=args.new_priority,
+                    weight=args.new_weight,
+                    port=args.new_port,
+                )
             record_manager.update_record(
                 args.update_record[0],
                 args.update_record[1],
                 new_name=args.new_name,
                 new_type=args.new_type,
                 new_data=args.new_data,
-                new_ttl=args.new_ttl
+                new_ttl=args.new_ttl,
+                new_priority=args.new_priority,
+                new_weight=args.new_weight,
+                new_port=args.new_port,
             )
         elif args.delete_record:
             record_manager.delete_record(args.delete_record[0], args.delete_record[1])

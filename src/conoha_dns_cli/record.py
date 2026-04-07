@@ -51,7 +51,27 @@ class RecordManager:
         except IOError as e:
             print(f"ファイル書き込みエラー: {e}", file=sys.stderr)
 
-    def add_record(self, identifier: str, name: str, type: str, data: str, ttl: int):
+    def _build_optional_fields(self, priority=None, weight=None, port=None):
+        payload = {}
+        if priority is not None:
+            payload["priority"] = priority
+        if weight is not None:
+            payload["weight"] = weight
+        if port is not None:
+            payload["port"] = port
+        return payload
+
+    def add_record(
+        self,
+        identifier: str,
+        name: str,
+        type: str,
+        data: str,
+        ttl: int,
+        priority: int = None,
+        weight: int = None,
+        port: int = None,
+    ):
         try:
             domain_id = self.domain_manager.get_domain_id(identifier)
             domain_name = self.domain_manager.get_domain_name_from_id(domain_id)
@@ -59,6 +79,7 @@ class RecordManager:
             
             print(f"ドメイン '{domain_name}' にレコード '{normalized_name}' を追加しています...")
             payload = {"name": normalized_name, "type": type, "data": data, "ttl": ttl}
+            payload.update(self._build_optional_fields(priority=priority, weight=weight, port=port))
             record = self.client.post(f"/v1/domains/{domain_id}/records", payload)
             short_id = get_short_id(record['uuid'])
             print("レコードが正常に追加されました。")
@@ -82,7 +103,18 @@ class RecordManager:
     def get_record(self, domain_id: str, record_id: str):
         return self.client.get(f"/v1/domains/{domain_id}/records/{record_id}")
 
-    def update_record(self, identifier: str, short_record_id: str, new_name: str = None, new_type: str = None, new_data: str = None, new_ttl: int = None):
+    def update_record(
+        self,
+        identifier: str,
+        short_record_id: str,
+        new_name: str = None,
+        new_type: str = None,
+        new_data: str = None,
+        new_ttl: int = None,
+        new_priority: int = None,
+        new_weight: int = None,
+        new_port: int = None,
+    ):
         try:
             domain_id = self.domain_manager.get_domain_id(identifier)
             domain_name = self.domain_manager.get_domain_name_from_id(domain_id)
@@ -101,11 +133,14 @@ class RecordManager:
                 "data": new_data if new_data is not None else current_record['data'],
                 "ttl": new_ttl if new_ttl is not None else current_record.get('ttl'),
                 "description": current_record.get('description'),
-                "priority": current_record.get('priority')
+                "priority": new_priority if new_priority is not None else current_record.get('priority'),
+                "weight": new_weight if new_weight is not None else current_record.get('weight'),
+                "port": new_port if new_port is not None else current_record.get('port'),
             }
             
-            if payload['ttl'] is None:
-                del payload['ttl']
+            for key in ("ttl", "priority", "weight", "port"):
+                if payload.get(key) is None:
+                    del payload[key]
 
             print(f"レコードID '{short_record_id}' を更新しています...")
             updated_record = self.client.put(f"/v1/domains/{domain_id}/records/{full_record_id}", payload)
