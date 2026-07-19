@@ -75,4 +75,5 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: gh release create "${{ github.ref_name }}" dist/conoha-dns-linux-amd64 --generate-notes --verify-tag
