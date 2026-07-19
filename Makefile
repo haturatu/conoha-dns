@@ -3,17 +3,18 @@
 all: build
 
 build:
-	python3 -m build
+	go build ./...
 
 test:
-	PYTHONPATH=src python3 -m conoha_dns_cli.main --help > /dev/null
+	go test ./...
 
 install:
-	pip install . --force-reinstall
+	install -d "$(HOME)/.local/bin"
+	go build -o "$(HOME)/.local/bin/conoha-dns" ./cmd/conoha-dns
 	@echo "Done! How to use \`conoha-dns -h\`"
 
 uninstall:
-	pip uninstall conoha-dns-cli -y
+	rm -f "$(HOME)/.local/bin/conoha-dns"
 
 clean:
-	rm -rf build dist *.egg-info
+	go clean ./...
