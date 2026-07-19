@@ -45,16 +45,35 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: go.sum
 
-      - name: Build Linux binary
+      - name: Build cross-platform binaries
+        shell: bash
         run: |
           mkdir -p dist
-          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o dist/conoha-dns-linux-amd64 ./cmd/conoha-dns
+          targets=(
+            linux/amd64 linux/arm64
+            darwin/amd64 darwin/arm64
+            windows/amd64 windows/arm64
+            freebsd/amd64 freebsd/arm64
+            openbsd/amd64 openbsd/arm64
+            netbsd/amd64 netbsd/arm64
+            dragonfly/amd64
+          )
+          for target in "${targets[@]}"; do
+            IFS=/ read -r goos goarch <<< "$target"
+            extension=""
+            if [ "$goos" = "windows" ]; then
+              extension=".exe"
+            fi
+            output="dist/conoha-dns-${goos}-${goarch}${extension}"
+            echo "Building ${output}"
+            CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" go build -trimpath -ldflags='-s -w' -o "$output" ./cmd/conoha-dns
+          done
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: conoha-dns-linux-amd64
-          path: dist/conoha-dns-linux-amd64
+          name: conoha-dns-binaries
+          path: dist/*
           if-no-files-found: error
 
   publish:
@@ -69,11 +88,11 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
-          name: conoha-dns-linux-amd64
+          name: conoha-dns-binaries
           path: dist
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release create "${{ github.ref_name }}" dist/conoha-dns-linux-amd64 --generate-notes --verify-tag
+        run: gh release create "${{ github.ref_name }}" dist/* --generate-notes --verify-tag

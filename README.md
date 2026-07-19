@@ -94,6 +94,8 @@ make install
 
 この実装はGoへ移行されていますが、既存の操作フラグとオプションは維持しています。特に `-ad`、`-ar`、`-ur`、`-dr` は単一文字の短縮フラグではなく、従来どおりそのまま使用します。
 
+リリースタグでは、Linux、macOS、Windows、FreeBSD、OpenBSD、NetBSD、DragonFly向けの `amd64` / `arm64` バイナリをGitHub Releaseへ添付します（DragonFlyは `amd64` のみ）。ファイル名は `conoha-dns-<GOOS>-<GOARCH>`（Windowsは `.exe`）です。
+
 ## 使い方
 
 このコマンドは、実行したい操作をフラグで指定します。一度に指定できる操作は1つだけです。
