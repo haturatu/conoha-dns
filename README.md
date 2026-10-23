@@ -84,7 +84,7 @@ CONOHA_AUTH_URL="https://identity.sample.conoha.io"       # エンドポイン�
 CONOHA_DNS_API_URL="https://dns-service.sample.conoha.io" # エンドポイント: DNS Service URL
 ```
 
-Go 1.26以降を用意し、Makefileを使ってビルドとインストールを実行します。
+Go 1.27.3以降を用意し、Makefileを使ってビルドとインストールを実行します。
 
 ```bash
 make install
